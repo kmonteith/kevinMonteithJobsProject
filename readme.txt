@@ -3,8 +3,6 @@ Name: Kevin Monteith
 Requirements:
     pytest
     requests
-    os
-    json
 
 Description of Project:
     The production file has two functions. The function get_jobs() retrieves the json data from github jobs by looping through the pages till there is no jobs on the json request.
