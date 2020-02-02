@@ -1,5 +1,8 @@
 import requests
 import json
+import os
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_jobs():
@@ -16,7 +19,5 @@ def get_jobs():
 
 
 def jobs_to_file():
-    f = open("jobs.txt", "a")
-    f.write(json.dumps(get_jobs()))
-    f.close()
-
+    with open(os.path.join(ROOT_DIR,'jobs.txt'), 'w') as f:
+        f.write(json.dumps(get_jobs()))
