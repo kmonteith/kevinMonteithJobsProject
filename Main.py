@@ -10,7 +10,9 @@ def get_jobs():
 
 
 def jobs_to_file():
-    print("hi")
+    f = open("jobs.txt", "a")
+    f.write(json.dumps(get_jobs()))
+    f.close()
 
 
-get_jobs()
+jobs_to_file()
