@@ -1,5 +1,7 @@
-import pytest
 import production
 
+
 def test_number_entries():
-    json_list = get_jobs()
+    json_list = production.get_jobs()
+    json_length = len(json_list)
+    assert json_length > 100
