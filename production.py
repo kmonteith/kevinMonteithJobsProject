@@ -64,7 +64,7 @@ def insert_data_to_db(cursor, data):
 
 def jobs_to_db():
     # create db for our jobs
-    conn, cursor = open_db("jobs.sqlite")
+    conn, cursor = open_db(os.path.join(ROOT_DIR, 'jobs.sqlite'))
     create_jobs_table(cursor)
     insert_data_to_db(cursor, get_jobs())
     close_db(conn)

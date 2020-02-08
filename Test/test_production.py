@@ -10,7 +10,7 @@ def test_number_entries():
 
 
 def test_check_file_data():
-    production.jobs_to_file()
-    with open(os.path.join(production.ROOT_DIR, 'jobs.txt'), 'r') as f:
-        data = json.load(f)
-    assert any(item['id'] == '3f11116f-8230-481d-bfe9-c83e1a81d601' for item in data)
+    conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
+    result = cursor.execute('''SELECT id FROM jobs WHERE id = "3f11116f-8230-481d-bfe9-c83e1a81d601"''')
+    print()
+    assert len(result.fetchall()) > 0
