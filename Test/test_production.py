@@ -9,8 +9,13 @@ def test_number_entries():
     assert json_length > 100
 
 
-def test_check_file_data():
+def test_table_exists():
+    conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
+    result = cursor.execute('''SELECT name FROM sqlite_master WHERE type='table' AND name='jobs';''')
+    assert result.arraysize > 0
+
+
+def test_check_db_data():
     conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
     result = cursor.execute('''SELECT id FROM jobs WHERE id = "3f11116f-8230-481d-bfe9-c83e1a81d601"''')
-    print()
-    assert len(result.fetchall()) > 0
+    assert result.arraysize > 0
