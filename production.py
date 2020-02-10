@@ -5,7 +5,9 @@ import json
 import os
 import sqlite3
 from datetime import datetime
+
 import time
+import dateutil.parser
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -74,8 +76,13 @@ def jobs_to_db():
     # create db for our job
     create_jobs_table()
     for item in get_jobs():
-        item['created_at'] = datetime.strptime(item['created_at'], '%a %b %d %H:%M:%S %Z %Y').timestamp()
+        item['created_at'] = date_to_timestamp(item['created_at'])
         insert_data_to_db(item)
+
+
+def date_to_timestamp(date_string):
+    d = dateutil.parser.parse(date_string)
+    return d.timestamp()
 
 
 def jobs_to_file():

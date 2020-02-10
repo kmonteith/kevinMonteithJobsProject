@@ -46,3 +46,7 @@ def test_insert_bad_data():
             "company_logo": "https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcUI5IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--919750b6eab525b746f9ce45a1f904bb1a8f7170/bafa694ef984ae859dc362c4056571c0.png"}
     assert production.insert_data_to_db(data)
 
+
+# check to see if timestamp is accurate
+def test_timestamp_accurate():
+    assert production.date_to_timestamp("Mon Feb 10 4:11:52 UTC 2020") == 1581307912
