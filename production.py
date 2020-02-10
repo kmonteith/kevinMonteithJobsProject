@@ -34,7 +34,8 @@ def close_db(connection: sqlite3.Connection):
     connection.close()
 
 
-def create_jobs_table(cursor):
+def create_jobs_table():
+    conn, cursor = open_db(os.path.join(ROOT_DIR, 'jobs.sqlite'))
     cursor.execute('''CREATE TABLE IF NOT EXISTS 
     jobs(id TEXT PRIMARY KEY, 
     type TEXT Default None,
@@ -47,27 +48,34 @@ def create_jobs_table(cursor):
     description TEXT Default None, 
     how_to_apply TEXT Default None, 
     company_logo TEXT Default None)''')
+    conn.commit()
+    conn.close()
 
 
-def insert_data_to_db(cursor, data):
-    for item in data:
-        # datetime_object = datetime.strptime('Jun 1 2005  1:33PM', '%a %b %d %H: %M:%S ')
-        timestamp = datetime.strptime(item['created_at'], '%a %b %d %H:%M:%S %Z %Y').timestamp()
-        print(item['company_url'])
+def insert_data_to_db(data):
+    conn, cursor = open_db(os.path.join(ROOT_DIR, 'jobs.sqlite'))
+    try:
         cursor.execute('''INSERT OR REPLACE INTO jobs
                         (id, type, url, created_at, company, company_url, location, title, description, how_to_apply, company_logo)
                         VALUES (?,?,?,?,?,?,?,?,?,?,?)''',
-                       (item['id'], item['type'], item['url'], timestamp, item['company'], item['company_url'],
-                        item['location'], item['title'], item['description'], item['how_to_apply'],
-                        item['company_logo']))
+                          (data['id'], data['type'], data['url'], data['created_at'], data['company'],
+                           data['company_url'],
+                           data['location'], data['title'], data['description'], data['how_to_apply'],
+                           data['company_logo']))
+        conn.commit()
+        conn.close()
+        return True
+    except:
+        conn.close()
+        return False
 
 
 def jobs_to_db():
-    # create db for our jobs
-    conn, cursor = open_db(os.path.join(ROOT_DIR, 'jobs.sqlite'))
-    create_jobs_table(cursor)
-    insert_data_to_db(cursor, get_jobs())
-    close_db(conn)
+    # create db for our job
+    create_jobs_table()
+    for item in get_jobs():
+        item['created_at'] = datetime.strptime(item['created_at'], '%a %b %d %H:%M:%S %Z %Y').timestamp()
+        insert_data_to_db(item)
 
 
 def jobs_to_file():
