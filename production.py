@@ -4,8 +4,6 @@ import requests
 import json
 import os
 import sqlite3
-
-import time
 import dateutil.parser
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -37,17 +35,17 @@ def close_db(connection: sqlite3.Connection):
 
 def create_jobs_table():
     conn, cursor = open_db(os.path.join(ROOT_DIR, 'jobs.sqlite'))
-    cursor.execute('''CREATE TABLE IF NOT EXISTS 
-    jobs(id TEXT PRIMARY KEY, 
+    cursor.execute('''CREATE TABLE IF NOT EXISTS
+    jobs(id TEXT PRIMARY KEY,
     type TEXT Default None,
-    url TEXT Default None, 
-    created_at FLOAT Default 0.0, 
-    company TEXT Default None, 
-    company_url TEXT Default None, 
-    location TEXT Default None, 
-    title TEXT Default None, 
-    description TEXT Default None, 
-    how_to_apply TEXT Default None, 
+    url TEXT Default None,
+    created_at FLOAT Default 0.0,
+    company TEXT Default None,
+    company_url TEXT Default None,
+    location TEXT Default None,
+    title TEXT Default None,
+    description TEXT Default None,
+    how_to_apply TEXT Default None,
     company_logo TEXT Default None)''')
     conn.commit()
     conn.close()
