@@ -1,8 +1,6 @@
 import pytest
-
 import production
 import os
-import json
 
 
 def test_number_entries():

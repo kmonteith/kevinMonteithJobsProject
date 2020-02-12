@@ -1,6 +1,5 @@
 from typing import Tuple
 import requests
-# import json
 import os
 import sqlite3
 import dateutil.parser
