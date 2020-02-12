@@ -1,5 +1,4 @@
 from typing import Tuple
-
 import requests
 import json
 import os
@@ -65,7 +64,7 @@ def insert_data_to_db(data):
         conn.commit()
         conn.close()
         return True
-    except sqlite3.Error as err:
+    except sqlite3.Error:
         conn.close()
         return False
 
@@ -83,9 +82,9 @@ def date_to_timestamp(date_string):
     return d.timestamp()
 
 
-def jobs_to_file():
-    with open(os.path.join(ROOT_DIR, 'jobs.txt'), 'w') as f:
-        f.write(json.dumps(get_jobs()))
+# def jobs_to_file():
+#    with open(os.path.join(ROOT_DIR, 'jobs.txt'), 'w') as f:
+#        f.write(json.dumps(get_jobs()))
 
 
 if __name__ == '__main__':
