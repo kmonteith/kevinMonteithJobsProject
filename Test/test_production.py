@@ -31,7 +31,9 @@ def test_insert_good_data():
             "created_at": 123456789, "company": "Kevin Corp", "company_url": "https://kevin.com",
             "location": "Atlanta, Georgia", "title": "Senior Python/Django Developer ",
             "description": "Programming things", "how_to_apply": "Go to website",
-            "company_logo": "https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcUI5IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--919750b6eab525b746f9ce45a1f904bb1a8f7170/bafa694ef984ae859dc362c4056571c0.png"}
+            "company_logo": "https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBa"
+                            "HBBcUI5IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--919750b6eab525b746f9ce45a1f90"
+                            "4bb1a8f7170/bafa694ef984ae859dc362c4056571c0.png"}
     assert production.insert_data_to_db(data)
 
 
@@ -41,7 +43,9 @@ def test_insert_bad_data():
             "created_at": "111111111", "company": "Kevin Corp", "company_url": "https://kevin.com",
             "location": "Atlanta, Georgia", "title": "Senior Python/Django Developer ",
             "description": "Programming things", "how_to_apply": "Go to website",
-            "company_logo": "https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBcUI5IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--919750b6eab525b746f9ce45a1f904bb1a8f7170/bafa694ef984ae859dc362c4056571c0.png"}
+            "company_logo": "https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOns"
+                            "ibWVzc2FnZSI6IkJBaHBBcUI5IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--919750b6eab525"
+                            "b746f9ce45a1f904bb1a8f7170/bafa694ef984ae859dc362c4056571c0.png"}
     assert production.insert_data_to_db(data)
 
 
