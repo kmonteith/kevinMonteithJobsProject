@@ -55,16 +55,17 @@ def insert_data_to_db(data):
     conn, cursor = open_db(os.path.join(ROOT_DIR, 'jobs.sqlite'))
     try:
         cursor.execute('''INSERT OR REPLACE INTO jobs
-                        (id, type, url, created_at, company, company_url, location, title, description, how_to_apply, company_logo)
+                        (id, type, url, created_at, company, company_url, location, title, description, how_to_apply,
+                        company_logo)
                         VALUES (?,?,?,?,?,?,?,?,?,?,?)''',
-                          (data['id'], data['type'], data['url'], data['created_at'], data['company'],
-                           data['company_url'],
-                           data['location'], data['title'], data['description'], data['how_to_apply'],
-                           data['company_logo']))
+                       (data['id'], data['type'], data['url'], data['created_at'], data['company'],
+                        data['company_url'],
+                        data['location'], data['title'], data['description'], data['how_to_apply'],
+                        data['company_logo']))
         conn.commit()
         conn.close()
         return True
-    except:
+    except sqlite3.Error as err:
         conn.close()
         return False
 
