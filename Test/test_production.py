@@ -17,7 +17,15 @@ def test_table_exists():
     assert result.arraysize > 0
 
 
-def test_check_db_data():
+def test_check_db_data_hacker_rank():
+    production.jobs_to_db()
+    conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
+    result = cursor.execute('''SELECT `id` FROM `jobs` WHERE `id` = "364246"''')
+    production.close_db(conn)
+    assert result.arraysize > 0
+
+
+def test_check_db_data_stack_overflow():
     production.jobs_to_db()
     conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
     result = cursor.execute('''SELECT id FROM jobs WHERE id = "3f11116f-8230-481d-bfe9-c83e1a81d601"''')
