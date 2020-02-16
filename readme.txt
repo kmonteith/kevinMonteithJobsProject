@@ -4,8 +4,17 @@ Requirements to install:
     pytest
     requests
     python-dateutil
+    feedparser
 
 Description of Project:
+    Sprint Three:
+        Split get_jobs() into two functions , get_hacker_rank_jobs() and get_stack_overflow_jobs()
+        get_jobs() puts both arrays returned from the two functions above together
+
+        get_hacker_rank_jobs() uses feed parser to get stackoverflow's jobs
+        It then will loop through entries and "massage" the data so it will fit into the preexisting database
+
+
     Sprint Two:
         Added a function that converts string to timestamp so that future sprints will be easier
 
