@@ -33,7 +33,7 @@ def test_check_db_data_stack_overflow():
     assert result.arraysize > 0
 
 
-def test_insert_good_data():
+def test_insert_good_data_stack_overflow():
     conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
     data = {"id": "8ytvv6", "type": "Full Time", "url": "https://kevin.com",
             "created_at": 123456789, "company": "Kevin Corp", "company_url": "https://kevin.com",
@@ -42,6 +42,27 @@ def test_insert_good_data():
             "company_logo": "https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBa"
                             "HBBcUI5IiwiZXhwIjpudWxsLCJwdXIiOiJibG9iX2lkIn19--919750b6eab525b746f9ce45a1f90"
                             "4bb1a8f7170/bafa694ef984ae859dc362c4056571c0.png"}
+    assert production.insert_data_to_db(data)
+
+
+def test_insert_good_data_hacker_rank():
+    conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
+    data = {"id": "1273", "type": "Not Available", "url": "https://kevin.com",
+            "created_at": 123456789, "company": "Kevin Corp", "company_url": "https://kevin.com",
+            "location": "Atlanta, Georgia", "title": "Senior Python/Django Developer ",
+            "description": "Programming things", "how_to_apply": "Go to website",
+            "company_logo": "Not Available"}
+    assert production.insert_data_to_db(data)
+
+
+@pytest.mark.xfail
+def test_insert_bad_data_hacker_rank():
+    conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
+    data = {"id": "1273", "type": "Not Available", "url": "https://kevin.com",
+            "created_at": 123456789, "company": "Kevin Corp", "company_url": "https://kevin.com",
+            "location": "Atlanta, Georgia", "title": "Senior Python/Django Developer ",
+            "description": "Programming things", "ho_to_apply": "Go to website",
+            "company_logo": "Not Available"}
     assert production.insert_data_to_db(data)
 
 
