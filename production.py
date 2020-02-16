@@ -3,21 +3,42 @@ import requests
 import os
 import sqlite3
 import dateutil.parser
+import feedparser
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_jobs():
+    jobs_json = get_hacker_rank_jobs() + get_stack_overflow_jobs()
+    return jobs_json
+
+
+def get_hacker_rank_jobs():
     counter = 0
-    jobs_json = []
+    hacker_rank_jobs_json = []
     while True:
         get_url = "https://jobs.github.com/positions.json?page=" + str(counter)
         request = requests.get(get_url)
         if len(request.json()) == 0:
             break
-        jobs_json.extend(request.json())
+        hacker_rank_jobs_json.extend(request.json())
         counter = counter + 1
-    return jobs_json
+    return hacker_rank_jobs_json
+
+
+def get_stack_overflow_jobs():
+    stack_overflow_jobs = []
+    temp_entry = {}
+    d = feedparser.parse("https://stackoverflow.com/jobs/feed")
+    for item in d.get('entries'):
+        temp_entry = {'title': item.get('title'), 'id': item.get('id'), 'url': item.get('link'),
+                      'created_at': item.get('published'), 'company': item.get('authors')[0].get('name'),
+                      'company_url': 'Not Available', 'location': item.get('location'),
+                      'how_to_apply': 'Refer to description', 'description': item.get('summary'),
+                      'company_logo': "Not Available", 'type': 'Not Available'}
+        stack_overflow_jobs.append(temp_entry)
+        temp_entry = {}
+    return stack_overflow_jobs
 
 
 def open_db(filename: str) -> Tuple[sqlite3.Connection, sqlite3.Cursor]:
