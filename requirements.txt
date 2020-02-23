@@ -2,3 +2,6 @@ requests
 python-dateutil
 pytest
 feedparser
+plotly
+pandas
+dash

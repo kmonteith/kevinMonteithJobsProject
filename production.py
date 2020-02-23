@@ -1,12 +1,92 @@
+from threading import Timer
 from typing import Tuple
 import requests
 import os
 import sqlite3
 import dateutil.parser
 import feedparser
+import plotly.graph_objects as go
+import pandas as pd
+import dash
+import dash_core_components as dcc
+import dash_html_components as html
+import webbrowser
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
+def create_map():
+    mapbox_access_token = "pk.eyJ1Ijoia21vbnRlaXRoIiwiYSI6ImNqeGRnOXF4aDBkdmczbm1wNXM5ZDhjMG4ifQ.zPr-FTOVPZOB-CoMd-FG4w"
+    df = pd.read_csv(
+        'https://raw.githubusercontent.com/plotly/datasets/master/Nuclear%20Waste%20Sites%20on%20American%20Campuses.csv')
+    site_lat = df.lat
+    site_lon = df.lon
+    locations_name = df.text
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scattermapbox(
+        lat=site_lat,
+        lon=site_lon,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            size=17,
+            color='rgb(255, 0, 0)',
+            opacity=0.7
+        ),
+        text=locations_name,
+        hoverinfo='text'
+    ))
+
+    fig.add_trace(go.Scattermapbox(
+        lat=site_lat,
+        lon=site_lon,
+        mode='markers',
+        marker=go.scattermapbox.Marker(
+            size=8,
+            color='rgb(242, 177, 172)',
+            opacity=0.7
+        ),
+        hoverinfo='none'
+    ))
+
+    fig.update_layout(
+        title='Nuclear Waste Sites on Campus',
+        autosize=True,
+        hovermode='closest',
+        showlegend=False,
+        mapbox=dict(
+            accesstoken=mapbox_access_token,
+            bearing=0,
+            center=dict(
+                lat=38,
+                lon=-94
+            ),
+            pitch=0,
+            zoom=3,
+            style='light'
+        ),
+    )
+
+    return fig
+
+
+
+def create_gui():
+    app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
+    app.layout = html.Div(children=[
+        html.H1(children='CompuJobs'),
+        dcc.Graph(
+            id='example-graph',
+            figure=create_map()
+        )
+    ])
+    app.title = "D";
+    app.run_server(debug=False)
+
+def open_browser():
+    webbrowser.open_new('http://127.0.0.1:8050/')
 
 def get_jobs():
     jobs_json = get_hacker_rank_jobs() + get_stack_overflow_jobs()
@@ -108,4 +188,7 @@ def date_to_timestamp(date_string):
 
 
 if __name__ == '__main__':
-    jobs_to_db()
+    #jobs_to_db()
+    Timer(2, open_browser).start();
+    create_gui()
+
