@@ -2,11 +2,22 @@
 html {
     margin: 0px;
     padding: 0px;
+    heigth: 100%
 }
 
 body {
     background: #eee;
     margin: 0px;
+    height: 100%;
+}
+
+.content {
+width: 95%;
+    height: 600px;
+    box-shadow: grey 0 0px 3px 0px;
+    margin: 20px auto auto auto;
+    border-radius: 5px;
+    background: white;
 }
 
 /* Nav Bar */
@@ -37,10 +48,34 @@ nav ul li {
     margin: 10px;
 }
 
+/* Filters */
+.filters {
+    display: inline-block;
+    padding: 20px;
+    width: 40%;
+    height: 100%;
+    vertical-align: top;
+    box-sizing: border-box;
+}
+.jobAge .rc-slider-mark-text {
+    font-size: 8px;
+}
+
+.filterHeading {
+    font-size: 20px;
+    font-family: 'Roboto';
+    color: grey;
+}
+
+.filterHeading i {
+    vertical-align: middle;
+    padding-right: 10px;
+}
+
 /* map */
 #map {
-    display: block;
-    width: 1200px;
+    display: inline-block;
+    width: 60%;
     height: 600px;
     margin: auto;
 }

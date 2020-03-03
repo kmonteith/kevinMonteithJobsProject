@@ -1,124 +1,17 @@
 import json
-from threading import Timer
 from typing import Tuple
 import requests
 import os
 import sqlite3
 import dateutil.parser
 import feedparser
-import plotly.graph_objs as go
-import pandas as pd
-import dash
-import dash_core_components as dcc
-import dash_html_components as html
 import webbrowser
-from dash.dependencies import Input, Output
 from geopy import geocoders
 from geopy.exc import GeocoderTimedOut
 import time
+import gui
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-
-external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
-
-
-def do_click(trace, points, state):
-    print(trace)
-
-
-
-
-def create_map():
-    mapbox_access_token = "pk.eyJ1Ijoia21vbnRlaXRoIiwiYSI6ImNqeGRnOXF4aDBkdmczbm1wNXM5ZDhjMG4ifQ.zPr-FTOVPZOB-CoMd-FG4w"
-    df = pd.read_csv(
-        'https://raw.githubusercontent.com/plotly/datasets/master/Nuclear%20Waste%20Sites%20'
-        'on%20American%20Campuses.csv')
-    site_lat = df.lat
-    site_lon = df.lon
-    locations_name = df.text
-    fig = go.Figure()
-    jobs_array = retrieve_jobs_from_db()
-    scatter_map = fig.add_trace(go.Scattermapbox(
-        lat=[ sub['latitude'] for sub in jobs_array ] ,
-        lon=[ sub['longitude'] for sub in jobs_array ] ,
-        hovertext=[ sub['location'] for sub in jobs_array ],
-        text=[ sub['id'] for sub in jobs_array ],
-        mode='markers',
-        textfont=dict(
-            family='sans serif',
-            size=200,
-            color='#ff7f0e'
-        ),
-        marker=go.scattermapbox.Marker(
-            size=10,
-            color='rgb(255, 0, 0)',
-            opacity=0.4
-        ),
-        hoverinfo='text',
-
-    ))
-    fig.update_layout(
-        autosize=True,
-        hovermode='closest',
-        showlegend=False,
-        mapbox=dict(
-            accesstoken=mapbox_access_token,
-            bearing=0,
-            center=dict(
-                lat=38,
-                lon=-94
-            ),
-            pitch=0,
-            zoom=3,
-            style='light'
-        ),
-        margin=dict(
-            l=0,
-            r=0,
-            b=0,
-            t=0,
-            pad=0
-        ),
-        height=600,
-        width=1200
-    )
-
-    return fig
-
-
-def create_gui():
-    app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-    map_fig = create_map()
-    app.layout = html.Div(children=[
-        html.Nav(children=[
-            html.Ul(children=[
-                html.Li(children=[
-                    html.H1(id="test", children='CompuJobs', className='logoName')
-                ])
-            ])
-        ]),
-        html.Form(id="test2",children=[
-            dcc.Input(placeholder="Query", type="text", id="filter")
-
-        ]),
-        dcc.Graph(
-            id='map',
-            className='card',
-            figure=map_fig,
-        )
-    ])
-    app.title = "D";
-
-    @app.callback(
-        Output('test2', 'children'),
-        [Input('map', 'clickData')])
-    def display_click_data(clickData):
-        return json.dumps(clickData, indent=2)
-
-
-
-    app.run_server(debug=False)
-
 
 def retrieve_jobs_from_db():
     conn = sqlite3.connect(os.path.join(ROOT_DIR, 'jobs.sqlite'))
@@ -128,6 +21,23 @@ def retrieve_jobs_from_db():
     job_array = result.fetchall()
     close_db(conn)
     return job_array
+
+
+def filter_map_age(start_age, end_age):
+    jobs_array = retrieve_jobs_from_db()
+    filtered_jobs = []
+    current_time = time.time()
+    filter_time_end = current_time - (start_age*86400)
+    filter_time_begin = current_time - (end_age * 86400)
+    print(current_time)
+    for item in jobs_array:
+        if filter_time_end > item['created_at'] > filter_time_begin:
+            filtered_jobs.append(item)
+    return filtered_jobs
+
+def filter_map_technology():
+    jobs_array = retrieve_jobs_from_db()
+
 
 
 def open_browser():
@@ -329,4 +239,5 @@ if __name__ == '__main__':
     #jobs_to_db()
     # retrieve_jobs_from_db()
     # Timer(2, open_browser).start();
-    create_gui()
+    gui.create_gui()
+    #filter_map_age()
