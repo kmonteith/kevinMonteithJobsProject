@@ -13,6 +13,7 @@ import gui
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 def retrieve_jobs_from_db():
     conn = sqlite3.connect(os.path.join(ROOT_DIR, 'jobs.sqlite'))
     conn.row_factory = sqlite3.Row
@@ -23,21 +24,58 @@ def retrieve_jobs_from_db():
     return job_array
 
 
-def filter_map_age(start_age, end_age):
-    jobs_array = retrieve_jobs_from_db()
+def create_tech_tag_array(job_array):
+    term_array = []
+    terms = []
+    for i in job_array:
+        temp = json.loads(i['tags'])
+        if temp is not None:
+            for j in temp:
+                if j['term'] not in terms:
+                    terms.append(j['term'])
+                    term_array.append({'label': j['term'], 'value': j['term']})
+    return term_array
+
+
+def filter_map_age(jobs_array, start_age, end_age):
     filtered_jobs = []
     current_time = time.time()
-    filter_time_end = current_time - (start_age*86400)
+    filter_time_end = current_time - (start_age * 86400)
     filter_time_begin = current_time - (end_age * 86400)
-    print(current_time)
     for item in jobs_array:
         if filter_time_end > item['created_at'] > filter_time_begin:
             filtered_jobs.append(item)
     return filtered_jobs
 
-def filter_map_technology():
-    jobs_array = retrieve_jobs_from_db()
 
+def filter_map_technology(jobs_array, keywords):
+    filtered_jobs = []
+    for item in jobs_array:
+        tag_array = json.loads(item['tags'])
+        if all(substring in item['description'] for substring in keywords) or any(
+                substring in item['title'] for substring in keywords):
+            filtered_jobs.append(item)
+        else:
+            if tag_array is not None:
+                counter = 0
+                for i in keywords:
+                    if any(d['term'] == i for d in tag_array):
+                        counter = counter + 1
+                if counter == len(keywords):
+                    filtered_jobs.append(item)
+    return filtered_jobs
+
+
+def filter_map_seniority(jobs_array, seniority):
+    filtered_jobs = []
+    if seniority is not None:
+        for item in jobs_array:
+            if all(substring in item['description'] for substring in seniority) or all(
+                    substring in item['title'] for substring in seniority):
+                filtered_jobs.append(item)
+    else:
+        filtered_jobs = jobs_array
+    return filtered_jobs
 
 
 def open_browser():
@@ -61,21 +99,21 @@ def get_hacker_rank_jobs():
             break
         hacker_rank_jobs_json.extend(request.json())
         counter = counter + 1
+    # print(hacker_rank_jobs_json[0])
     return hacker_rank_jobs_json
 
 
 def get_stack_overflow_jobs():
     stack_overflow_jobs = []
-    temp_entry = {}
     d = feedparser.parse("https://stackoverflow.com/jobs/feed")
     for item in d.get('entries'):
+        print(item)
         temp_entry = {'title': item.get('title'), 'id': item.get('id'), 'url': item.get('link'),
                       'created_at': item.get('published'), 'company': item.get('authors')[0].get('name'),
                       'company_url': 'Not Available', 'location': item.get('location'),
                       'how_to_apply': 'Refer to description', 'description': item.get('summary'),
-                      'company_logo': "Not Available", 'type': 'Not Available'}
+                      'company_logo': "Not Available", 'type': 'Not Available', 'tags': item.get('tags')}
         stack_overflow_jobs.append(temp_entry)
-        temp_entry = {}
     return stack_overflow_jobs
 
 
@@ -95,18 +133,20 @@ def create_jobs_table():
     conn, cursor = open_db(os.path.join(ROOT_DIR, 'jobs.sqlite'))
     cursor.execute('''CREATE TABLE IF NOT EXISTS
     jobs(id TEXT PRIMARY KEY,
-    type TEXT Default None,
-    url TEXT Default None,
+    type TEXT Default NULL,
+    url TEXT Default NULL,
     created_at FLOAT Default 0.0,
-    company TEXT Default None,
-    company_url TEXT Default None,
-    location TEXT Default None,
-    title TEXT Default None,
-    description TEXT Default None,
-    how_to_apply TEXT Default None,
-    company_logo TEXT Default None,
+    company TEXT Default NULL,
+    company_url TEXT Default NULL,
+    location TEXT Default NULL,
+    title TEXT Default NULL,
+    description TEXT Default NULL,
+    how_to_apply TEXT Default NULL,
+    company_logo TEXT Default NULL,
+    tags TEXT Default NULL,
     longitude FLOAT Default NULL,
-    latitude FLOAT Default NULL)''')
+    latitude FLOAT Default NULL,
+    coord_id INT DEFAULT NULL)''')
     conn.commit()
     conn.close()
 
@@ -135,40 +175,42 @@ def get_coordinates_from_location(location):
         conn = sqlite3.connect(os.path.join(ROOT_DIR, 'coordinates.sqlite'))
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        result = cursor.execute("SELECT `longitude`,`latitude` FROM `coordinates` WHERE `location` = '"+location+"'")
+        result = cursor.execute(
+            "SELECT `longitude`,`latitude`,`id` FROM `coordinates` WHERE `location` = '" + location + "'")
         query_result = result.fetchone()
         close_db(conn)
-        return query_result['longitude'], query_result['latitude']
+        return query_result['longitude'], query_result['latitude'], query_result['id']
     else:
         gn = geocoders.Nominatim(user_agent="Jobs_Project")
         if gn.geocode(location) is not None:
             try:
                 coordinates = gn.geocode(location, timeout=5)
-                insert_into_location_cache(location,coordinates.longitude,coordinates.latitude)
-                return coordinates.longitude, coordinates.latitude
+                result, coord_id = insert_into_location_cache(location, coordinates.longitude, coordinates.latitude)
+                return coordinates.longitude, coordinates.latitude, coord_id
             except GeocoderTimedOut:
                 time.sleep(1)
                 return get_coordinates_from_location(location)
         else:
-            return "NULL","NULL"
+            return "NULL", "NULL", -1
 
 
-def insert_into_location_cache(location,lon,lat):
+def insert_into_location_cache(location, lon, lat):
     conn, cursor = open_db(os.path.join(ROOT_DIR, 'coordinates.sqlite'))
     try:
         cursor.execute('''INSERT OR REPLACE INTO coordinates (location, longitude, latitude) VALUES (?,?,?)''',
                        (location, lon, lat))
         conn.commit()
         conn.close()
-        return True
+        return True, cursor.lastrowid
     except sqlite3.Error as e:
+        print(e)
         conn.close()
         return False
 
 
 def check_coordinate_cache(location):
     conn, cursor = open_db(os.path.join(ROOT_DIR, 'coordinates.sqlite'))
-    result = cursor.execute("SELECT `id` FROM `coordinates` WHERE `location` = '"+location+"'")
+    result = cursor.execute("SELECT `id` FROM `coordinates` WHERE `location` = '" + location + "'")
     if len(result.fetchall()) > 0:
         close_db(conn)
         return True
@@ -189,15 +231,15 @@ def insert_data_to_db(data):
     conn, cursor = open_db(os.path.join(ROOT_DIR, 'jobs.sqlite'))
     try:
         location = parse_location(data['location'])
-        lon, lat = get_coordinates_from_location(location)
+        lon, lat, coord_id = get_coordinates_from_location(location)
         cursor.execute('''INSERT OR REPLACE INTO jobs
                         (id, type, url, created_at, company, company_url, location, title, description, how_to_apply,
-                        company_logo,longitude,latitude)
-                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)''',
+                        company_logo,longitude,latitude,tags,coord_id)
+                        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)''',
                        (data['id'], data['type'], data['url'], data['created_at'], data['company'],
                         data['company_url'],
                         str(location), data['title'], data['description'], data['how_to_apply'],
-                        data['company_logo'],lon,lat))
+                        data['company_logo'], lon, lat, json.dumps(data.get('tags')), coord_id))
 
         conn.commit()
         conn.close()
@@ -213,13 +255,21 @@ def jobs_to_db():
     create_jobs_table()
     jobs_array = get_jobs()
     jobs_array_length = len(jobs_array)
-    counter = 0;
+    counter = 0
     for item in jobs_array:
         item['created_at'] = date_to_timestamp(item['created_at'])
         insert_data_to_db(item)
-        percentage = (counter/jobs_array_length)*100
-        print(str(percentage)+"% done")
-        counter = counter+1
+        percentage = (counter / jobs_array_length) * 100
+        print(str(percentage) + "% done")
+        counter = counter + 1
+
+
+def get_jobs_from_coord_id(jobs_array, coord_id):
+    filtered_array = []
+    for item in jobs_array:
+        if item['coord_id'] == coord_id:
+            filtered_array.append(item)
+    return filtered_array
 
 
 def date_to_timestamp(date_string):
@@ -234,10 +284,14 @@ def jobs_to_file():
 
 if __name__ == '__main__':
     # jobs_to_db()
-    #create_jobs_table()
-    #create_coordinate_table()
-    #jobs_to_db()
-    # retrieve_jobs_from_db()
+    # create_jobs_table()
+    # create_coordinate_table()
+    # jobs_to_db()
     # Timer(2, open_browser).start();
     gui.create_gui()
-    #filter_map_age()
+    # get_hacker_rank_jobs()
+    # get_stack_overflow_jobs()
+    # jobs_array = retrieve_jobs_from_db()
+    # jobs_array = filter_map_technology(jobs_array," go ")
+    # jobs_array = filter_map_age(jobs_array,0,100)
+    # print(len(jobs_array))

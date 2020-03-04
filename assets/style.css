@@ -72,10 +72,99 @@ nav ul li {
     padding-right: 10px;
 }
 
+.filterLabels {
+    font-size: 14px;
+    font-family: 'Roboto';
+    color: grey;
+    padding: 10px 0px;
+}
+
+label {
+    color: grey;
+    font-size:12px;
+}
+
+.filterButton {
+    float:right;
+}
+
 /* map */
 #map {
     display: inline-block;
     width: 60%;
     height: 600px;
     margin: auto;
+}
+
+/* Job Display */
+
+.jobDisplay {
+    position: absolute;
+    height: 400px;
+    width: 600px;
+    transform: scale(0);
+    transform-origin: center;
+    transition: .3s all ease-out;
+    background: #eeeeeed1;
+    top: calc( 50% - 150px );
+    z-index: 100;
+    border-radius: 5px;
+    padding: 20px;
+    left: calc( 50% - 300px );
+    box-shadow: grey 0 0 3px;
+    overflow-y: scroll;
+}
+
+.jobDisplay h1 {
+    color: grey;
+    font-size: 14px;
+    clear: both;
+    float: left;
+}
+
+.jobDisplay .close {
+float: right;
+    color: grey;
+    font-size: 17px;
+    cursor: pointer;
+}
+
+.jobDisplay .jobList {
+    clear:both;
+}
+
+.jobDisplay .jobList li {
+    margin-bottom: 1rem;
+    background: white;
+    list-style: none;
+    padding: 10px;
+    border-radius: 6px;
+}
+.jobDisplay .jobList li .jobTitle{
+    font-size: 16px;
+    color: darkgray;
+}
+
+.jobDisplay .jobList li .label{
+    font-size: 14px;
+    color: darkgray;
+}
+
+.jobDisplay .jobList li p{
+    font-size: 12px;
+    color: darkgray;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: lightgray;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: grey;
 }
