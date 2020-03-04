@@ -24,6 +24,14 @@ def retrieve_jobs_from_db():
     return job_array
 
 
+def filter_jobs(jobs_array, technology_filter_value=[""], job_age_value=[0, 730],
+                seniority_filter_value=""):
+    jobs_array = filter_map_technology(jobs_array, technology_filter_value)
+    jobs_array = filter_map_age(jobs_array, job_age_value[0], job_age_value[1])
+    jobs_array = filter_map_seniority(jobs_array, seniority_filter_value)
+    return jobs_array
+
+
 def create_tech_tag_array(job_array):
     term_array = []
     terms = []
@@ -52,7 +60,7 @@ def filter_map_technology(jobs_array, keywords):
     filtered_jobs = []
     for item in jobs_array:
         tag_array = json.loads(item['tags'])
-        if all(substring in item['description'] for substring in keywords) or any(
+        if all(substring in item['description'] for substring in keywords) or all(
                 substring in item['title'] for substring in keywords):
             filtered_jobs.append(item)
         else:
@@ -181,17 +189,20 @@ def get_coordinates_from_location(location):
         close_db(conn)
         return query_result['longitude'], query_result['latitude'], query_result['id']
     else:
-        gn = geocoders.Nominatim(user_agent="Jobs_Project")
-        if gn.geocode(location) is not None:
-            try:
-                coordinates = gn.geocode(location, timeout=5)
+        gn = geocoders.Nominatim(user_agent="Jobs_Project_kmonteith_rand")
+        try:
+            time.sleep(1.5)
+            location_geocode = gn.geocode(location,timeout=1000)
+            if location_geocode is not None:
+                coordinates = location_geocode
                 result, coord_id = insert_into_location_cache(location, coordinates.longitude, coordinates.latitude)
                 return coordinates.longitude, coordinates.latitude, coord_id
-            except GeocoderTimedOut:
-                time.sleep(1)
-                return get_coordinates_from_location(location)
-        else:
-            return "NULL", "NULL", -1
+            else:
+                return "NULL", "NULL", -1
+        except GeocoderTimedOut:
+            time.sleep(1)
+            return get_coordinates_from_location(location)
+
 
 
 def insert_into_location_cache(location, lon, lat):
@@ -222,6 +233,7 @@ def parse_location(location):
     if location is not None:
         location = location.replace('remote', ' ')
         location = location.replace('Remote', ' ')
+        location = location.replace('CA', 'California ')
         location = location.replace('(', ' ')
         location = location.replace(')', ' ')
     return location
@@ -284,11 +296,11 @@ def jobs_to_file():
 
 if __name__ == '__main__':
     # jobs_to_db()
-    # create_jobs_table()
-    # create_coordinate_table()
-    # jobs_to_db()
+     # create_jobs_table()
+     # create_coordinate_table()
+     # jobs_to_db()
     # Timer(2, open_browser).start();
-    gui.create_gui()
+     gui.create_gui()
     # get_hacker_rank_jobs()
     # get_stack_overflow_jobs()
     # jobs_array = retrieve_jobs_from_db()
