@@ -19,7 +19,7 @@ def create_tag_html(tags):
         tag_list = []
         for item in json.loads(tags):
             tag_list.append(
-                html.P(children="#"+item['term'], className="tag"))
+                html.P(children="#" + item['term'], className="tag"))
         return tag_list
     else:
         return "Not Available"
@@ -112,14 +112,14 @@ def create_gui():
                 figure=map_fig,
             )])
     ])
-    app.title = "CompuJobs";
+    app.title = "CompuJobs"
 
     # Job Age Callback
     @app.callback(Output('map', 'figure'), [Input('filterButton', 'n_clicks')],
                   [State('jobAge', 'value'), State('technology_filter', 'value'), State('seniority_filter', 'value')])
     def display_click_data(n_clicks, job_age_value, technology_filter_value, seniority_filter_value):
         jobs_array = production.retrieve_jobs_from_db()
-        jobs_array = production.filter_jobs(jobs_array, technology_filter_value,job_age_value,seniority_filter_value)
+        jobs_array = production.filter_jobs(jobs_array, technology_filter_value, job_age_value, seniority_filter_value)
         return {
             "data": [
                 {
@@ -171,10 +171,7 @@ def create_gui():
                               html.P(children=item['company_url']),
                               html.H5(children='Description: ', className='label'),
                               html.P([dash_dangerously_set_inner_html.DangerouslySetInnerHTML(item['description'])]),
-
                               ]))
             return list_jobs
-
-
 
     app.run_server(debug=False)

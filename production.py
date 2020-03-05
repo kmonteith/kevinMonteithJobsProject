@@ -298,5 +298,5 @@ def jobs_to_file():
 
 
 if __name__ == '__main__':
-    Timer(2, open_browser).start();
+    Timer(2, open_browser).start()
     gui.create_gui()
