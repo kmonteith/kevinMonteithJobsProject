@@ -1,6 +1,7 @@
+import os
+import time
 import pytest
 import production
-import os
 
 
 def test_number_entries():
@@ -34,7 +35,6 @@ def test_check_db_data_stack_overflow():
 
 
 def test_insert_good_data_stack_overflow():
-    conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
     data = {"id": "8ytvv6", "type": "Full Time", "url": "https://kevin.com",
             "created_at": 123456789, "company": "Kevin Corp", "company_url": "https://kevin.com",
             "location": "Atlanta, Georgia", "title": "Senior Python/Django Developer ",
@@ -46,7 +46,6 @@ def test_insert_good_data_stack_overflow():
 
 
 def test_insert_good_data_hacker_rank():
-    conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
     data = {"id": "1273", "type": "Not Available", "url": "https://kevin.com",
             "created_at": 123456789, "company": "Kevin Corp", "company_url": "https://kevin.com",
             "location": "Atlanta, Georgia", "title": "Senior Python/Django Developer ",
@@ -57,7 +56,6 @@ def test_insert_good_data_hacker_rank():
 
 @pytest.mark.xfail
 def test_insert_bad_data_hacker_rank():
-    conn, cursor = production.open_db(os.path.join(production.ROOT_DIR, 'jobs.sqlite'))
     data = {"id": "1273", "type": "Not Available", "url": "https://kevin.com",
             "created_at": 123456789, "company": "Kevin Corp", "company_url": "https://kevin.com",
             "location": "Atlanta, Georgia", "title": "Senior Python/Django Developer ",
@@ -78,9 +76,69 @@ def test_insert_bad_data():
     assert production.insert_data_to_db(data)
 
 
-def test_filter_location():
+def test_filter_age():
+    jobs_array = production.retrieve_jobs_from_db()
+    # filter from dates now to a month ago
+    jobs_array = production.filter_map_age(jobs_array, 0, 30)
+    current_timestamp = time.time()
+    one_month_future_timestamp = current_timestamp - 2592000
+    jobs_array_size = len(jobs_array)
+    item_counter = 0
+    for item in jobs_array:
+        if one_month_future_timestamp < item['created_at'] <= current_timestamp:
+            item_counter = item_counter + 1
+    assert item_counter == jobs_array_size
 
 
+def test_filter_seniority():
+    jobs_array = production.retrieve_jobs_from_db()
+    # filter from dates now to a month ago
+    jobs_array = production.filter_map_age(jobs_array, 0, 30)
+    current_timestamp = time.time()
+    one_month_future_timestamp = current_timestamp - 2592000
+    jobs_array_size = len(jobs_array)
+    item_counter = 0
+    for item in jobs_array:
+        if one_month_future_timestamp < item['created_at'] <= current_timestamp:
+            item_counter = item_counter + 1
+    assert item_counter == jobs_array_size
+
+
+def test_filter_technology():
+    jobs_array = production.retrieve_jobs_from_db()
+    jobs_array = production.filter_map_seniority(jobs_array, ["junior", "senior"])
+    jobs_array_size = len(jobs_array)
+    item_counter = 0
+    for item in jobs_array:
+        if all(substring in item['description'] for substring in ["junior", "senior"]) or all(
+                substring in item['title'] for substring in ["junior", "senior"]):
+            item_counter = item_counter + 1
+    assert item_counter == jobs_array_size
+
+
+def test_check_correct_selected_result_id():
+    jobs_array = production.retrieve_jobs_from_db()
+    # grab all jobs from fort collins
+    jobs_array = production.get_jobs_from_coord_id(jobs_array, 106)
+    counter = 0
+    for item in jobs_array:
+        if item['id'] == "336cc8d4-e39a-11e8-87d1-d137f96d2919":
+            counter = counter + 1
+    assert counter == 1
+
+
+def test_check_correct_selected_result_title():
+    jobs_array = production.retrieve_jobs_from_db()
+    # grab all jobs from Bloomington
+    jobs_array = production.get_jobs_from_coord_id(jobs_array, 234)
+    counter = 0
+    for item in jobs_array:
+        print(item['title'])
+        if item['title'] == \
+                "Senior Software Developer - Multi-Product Environment at Bloom Insurance (Bloomington, IN)":
+            counter = counter + 1
+    print(counter)
+    assert counter == 1
 
 
 # check to see if timestamp is accurate

@@ -150,6 +150,15 @@ float: right;
     color: darkgray;
 }
 
+.jobDisplay .tag {
+    background: #c9e4ff;
+    display: inline-block;
+    padding: 2px 12px;
+    color: white;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
 .jobDisplay .jobList li p{
     font-size: 12px;
     color: darkgray;

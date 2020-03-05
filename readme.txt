@@ -5,8 +5,27 @@ Requirements to install:
     requests
     python-dateutil
     feedparser
+    dash
+    pandas
+    plotly
+    geopy
 
 Description of Project:
+    Sprint Four:
+        There is one main filter function that will take in multiple params, the first being the job array to be filtered,
+         the others are the age, technology and seniority of the job. In this function the actual filter functions are called that will
+         take in the array and return the filtered function.
+
+         There is also a function that will retrieve the coordinates from the location string. This function will call another function that checks if
+         we have the cached location and if we do then we return that and if we do not then we use geopy to grab the coordinates. I used a recursive function to ensure
+         that if the geocoder raised an exception then we will attempt it again.
+
+         In the gui I used Dash plush plotly to create my maps and gui. The inputs were created and styled, I then used a callback function to retrieve the data
+         then filter the data according to the values returned.
+
+
+
+
     Sprint Three:
         Split get_jobs() into two functions , get_hacker_rank_jobs() and get_stack_overflow_jobs()
         get_jobs() puts both arrays returned from the two functions above together

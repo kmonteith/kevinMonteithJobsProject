@@ -1,4 +1,5 @@
 import json
+from threading import Timer
 from typing import Tuple
 import requests
 import os
@@ -24,8 +25,12 @@ def retrieve_jobs_from_db():
     return job_array
 
 
-def filter_jobs(jobs_array, technology_filter_value=[""], job_age_value=[0, 730],
+def filter_jobs(jobs_array, technology_filter_value=None, job_age_value=None,
                 seniority_filter_value=""):
+    if job_age_value is None:
+        job_age_value = [0, 730]
+    if technology_filter_value is None:
+        technology_filter_value = [""]
     jobs_array = filter_map_technology(jobs_array, technology_filter_value)
     jobs_array = filter_map_age(jobs_array, job_age_value[0], job_age_value[1])
     jobs_array = filter_map_seniority(jobs_array, seniority_filter_value)
@@ -115,7 +120,6 @@ def get_stack_overflow_jobs():
     stack_overflow_jobs = []
     d = feedparser.parse("https://stackoverflow.com/jobs/feed")
     for item in d.get('entries'):
-        print(item)
         temp_entry = {'title': item.get('title'), 'id': item.get('id'), 'url': item.get('link'),
                       'created_at': item.get('published'), 'company': item.get('authors')[0].get('name'),
                       'company_url': 'Not Available', 'location': item.get('location'),
@@ -192,7 +196,7 @@ def get_coordinates_from_location(location):
         gn = geocoders.Nominatim(user_agent="Jobs_Project_kmonteith_rand")
         try:
             time.sleep(1.5)
-            location_geocode = gn.geocode(location,timeout=1000)
+            location_geocode = gn.geocode(location, timeout=1000)
             if location_geocode is not None:
                 coordinates = location_geocode
                 result, coord_id = insert_into_location_cache(location, coordinates.longitude, coordinates.latitude)
@@ -202,7 +206,6 @@ def get_coordinates_from_location(location):
         except GeocoderTimedOut:
             time.sleep(1)
             return get_coordinates_from_location(location)
-
 
 
 def insert_into_location_cache(location, lon, lat):
@@ -295,15 +298,5 @@ def jobs_to_file():
 
 
 if __name__ == '__main__':
-    # jobs_to_db()
-     # create_jobs_table()
-     # create_coordinate_table()
-     # jobs_to_db()
-    # Timer(2, open_browser).start();
-     gui.create_gui()
-    # get_hacker_rank_jobs()
-    # get_stack_overflow_jobs()
-    # jobs_array = retrieve_jobs_from_db()
-    # jobs_array = filter_map_technology(jobs_array," go ")
-    # jobs_array = filter_map_age(jobs_array,0,100)
-    # print(len(jobs_array))
+    Timer(2, open_browser).start();
+    gui.create_gui()

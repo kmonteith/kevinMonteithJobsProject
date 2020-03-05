@@ -1,3 +1,5 @@
+import json
+
 import dash
 import dash_core_components as dcc
 import dash_dangerously_set_inner_html
@@ -10,6 +12,17 @@ import production
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css',
                         'https://fonts.googleapis.com/css?family=Lato&display=swap',
                         'https://fonts.googleapis.com/icon?family=Material+Icons']
+
+
+def create_tag_html(tags):
+    if tags != "null":
+        tag_list = []
+        for item in json.loads(tags):
+            tag_list.append(
+                html.P(children="#"+item['term'], className="tag"))
+        return tag_list
+    else:
+        return "Not Available"
 
 
 def create_map():
@@ -144,13 +157,16 @@ def create_gui():
         if click_data is not None:
             coord_id = click_data.get('points')[0].get('text')
             jobs_array = production.retrieve_jobs_from_db()
-            jobs_array = production.filter_jobs(jobs_array,technology_filter_value, job_age_value,
+            jobs_array = production.filter_jobs(jobs_array, technology_filter_value, job_age_value,
                                                 seniority_filter_value)
             jobs_array = production.get_jobs_from_coord_id(jobs_array, coord_id)
             list_jobs = []
+
             for item in jobs_array:
                 list_jobs.append(html.Li(
                     children=[html.H4(className='jobTitle', children=item['title']),
+                              html.H5(children='Tags: ', className='label'),
+                              html.Div(children=create_tag_html(item['tags'])),
                               html.H5(children='Link: ', className='label'),
                               html.P(children=item['company_url']),
                               html.H5(children='Description: ', className='label'),
@@ -158,5 +174,7 @@ def create_gui():
 
                               ]))
             return list_jobs
+
+
 
     app.run_server(debug=False)
