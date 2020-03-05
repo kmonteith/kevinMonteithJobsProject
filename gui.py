@@ -1,5 +1,4 @@
 import json
-
 import dash
 import dash_core_components as dcc
 import dash_dangerously_set_inner_html

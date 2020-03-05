@@ -9,6 +9,7 @@ Requirements to install:
     pandas
     plotly
     geopy
+    dash_dangerously_set_inner_html
 
 Description of Project:
     Sprint Four:
