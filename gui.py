@@ -91,8 +91,8 @@ def create_gui():
                 html.Label(className="filterLabels", children="Technologies"),
                 dcc.Dropdown(
                     id="technology_filter",
-                    options=production.create_tech_tag_array(production.retrieve_jobs_from_db())
-                    , multi=True,
+                    options=production.create_tech_tag_array(production.retrieve_jobs_from_db()),
+                    multi=True,
                     value=" "
                 ),
                 html.Label(className="filterLabels", children="Seniority Level"),
