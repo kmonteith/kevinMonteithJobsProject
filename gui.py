@@ -95,6 +95,11 @@ def create_gui():
                         {'label': 'Junior Developer', 'value': 'junior'}
                     ]
                 ),
+                html.Label(className="filterLabels", children="Within Range"),
+                html.Div(className="searchDiv", children=[
+                    dcc.Input(id="cityInput", list="citySearchResult", className="cityInput", placeholder="City"),
+                    html.Datalist(id="citySearchResult", className="citySearchResult")
+                ]),
                 html.Button("Filter", id="filterButton", type="button", className="filterButton"),
                 html.Label(id="SliderOutput")
             ]),
@@ -142,6 +147,24 @@ def create_gui():
                 return {'transform': 'scale(0)'}
             elif clicked_element == "map":
                 return {'transform': 'scale(1)'}
+
+    @app.callback(Output('citySearchResult', 'children'),
+                  [Input('cityInput', 'value')])
+    def show_search_results(query):
+        search_results = production.search_cities(query)
+        if query is not "":
+            if len(search_results) > 0:
+                return production.search_result_datalist_creation(search_results)
+            else:
+                return []
+        else:
+            return []
+
+    @app.callback([Output('cityInput', 'value')],
+                  [Input('citySearchResult', 'children')])
+    def select_result(selected):
+        print(selected)
+
 
     @app.callback(Output('jobList', 'children'), [Input('map', 'clickData')],
                   [State('jobAge', 'value'), State('technology_filter', 'value'), State('seniority_filter', 'value')])

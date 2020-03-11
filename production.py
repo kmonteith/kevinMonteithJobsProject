@@ -11,6 +11,7 @@ from geopy import geocoders
 from geopy.exc import GeocoderTimedOut
 import time
 import gui
+import dash_html_components as html
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -48,6 +49,13 @@ def create_tech_tag_array(job_array):
                     terms.append(j['term'])
                     term_array.append({'label': j['term'], 'value': j['term']})
     return term_array
+
+
+def search_result_datalist_creation(search_array):
+    search_result_array = []
+    for i in search_array:
+        search_result_array.append(html.Option(i['name']))
+    return search_result_array
 
 
 def filter_map_age(jobs_array, start_age, end_age):
@@ -297,6 +305,26 @@ def jobs_to_file():
         f.write(json.dumps(get_jobs()))
 
 
+def filter_location(jobs_array, city_string):
+    return None
+
+
+def search_cities(query):
+    result_counter = 0;
+    with open(os.path.join(ROOT_DIR, 'cities.json')) as file:
+        cities_json = json.loads(file.read())
+        search_results = []
+        for item in cities_json:
+            if query.lower() in item['name'].lower():
+                result_counter = result_counter + 1
+                search_results.append(item)
+            if result_counter >= 5:
+                break
+        print(search_results)
+    return search_results
+
+
 if __name__ == '__main__':
-    Timer(2, open_browser).start()
+    # Timer(2, open_browser).start()
     gui.create_gui()
+    search_cities("new")

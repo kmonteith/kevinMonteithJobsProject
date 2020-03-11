@@ -88,6 +88,15 @@ label {
     float:right;
 }
 
+.searchDiv {
+    width: 50%;
+    position: relative;
+}
+
+.cityInput {
+    width: 100%;
+}
+
 /* map */
 #map {
     display: inline-block;
