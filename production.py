@@ -29,7 +29,7 @@ def retrieve_jobs_from_db():
 
 
 def filter_jobs(jobs_array, technology_filter_value=None, job_age_value=None,
-                seniority_filter_value="", city_filter_value="", distance_value=None):
+                seniority_filter_value="", city_filter_value=None, distance_value=None):
     if job_age_value is None:
         job_age_value = [0, 730]
     if technology_filter_value is None:
