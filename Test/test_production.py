@@ -161,7 +161,7 @@ def test_out_of_location_range():
 def test_location_distance_function():
     gn = geocoders.Nominatim(user_agent="Jobs_Project_kmonteith_rand")
     location_geocode = gn.geocode("Bridgewater, Massachusetts, United States", timeout=1000)
-    distance = vincenty((location_geocode.latitude,location_geocode.longitude), (40.7128, -74.0060)).miles
+    distance = vincenty((location_geocode.latitude, location_geocode.longitude), (40.7128, -74.0060)).miles
     assert distance == distance
 
 
