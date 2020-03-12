@@ -145,13 +145,7 @@ def create_gui():
                   [Input('cityInput', 'value')])
     def show_search_results(query):
         search_results = production.search_cities(query)
-        if query is not None:
-            if len(search_results) > 0:
-                return production.search_result_datalist_creation(search_results)
-            else:
-                return []
-        else:
-            return []
+        return production.search_result_datalist_creation(search_results)
 
     @app.callback(Output('jobList', 'children'), [Input('map', 'clickData')],
                   [State('jobAge', 'value'), State('technology_filter', 'value'), State('seniority_filter', 'value')])

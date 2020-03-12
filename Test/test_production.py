@@ -168,4 +168,3 @@ def test_location_distance_function():
 # check to see if timestamp is accurate
 def test_timestamp_accurate():
     assert production.date_to_timestamp("Mon Feb 10 4:11:52 UTC 2020") == 1581307912
-
