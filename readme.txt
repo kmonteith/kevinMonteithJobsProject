@@ -10,8 +10,12 @@ Requirements to install:
     plotly
     geopy
     dash_dangerously_set_inner_html
+    html_sanitizer
 
 Description of Project:
+    Extra Credit:
+        Added ability to search for cities and use them to create a distance radius of their choosing which they can use to create a loaction filter
+
     Sprint Four:
         There is one main filter function that will take in multiple params, the first being the job array to be filtered,
          the others are the age, technology and seniority of the job. In this function the actual filter functions are called that will

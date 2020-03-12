@@ -86,15 +86,18 @@ label {
 
 .filterButton {
     float:right;
+    margin-top: 20px;
 }
 
 .searchDiv {
-    width: 50%;
+    width: 100%;
     position: relative;
 }
 
 .cityInput {
-    width: 100%;
+    display: inline-block;
+    width: 55%;
+    margin-right: 15px;
 }
 
 /* map */

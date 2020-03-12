@@ -98,7 +98,8 @@ def create_gui():
                 html.Label(className="filterLabels", children="Within Range"),
                 html.Div(className="searchDiv", children=[
                     dcc.Input(id="cityInput", list="citySearchResult", className="cityInput", placeholder="City"),
-                    html.Datalist(id="citySearchResult", className="citySearchResult")
+                    html.Datalist(id="citySearchResult", className="citySearchResult"),
+                    dcc.Input(type="number", id="distanceInput", placeholder="Miles")
                 ]),
                 html.Button("Filter", id="filterButton", type="button", className="filterButton"),
                 html.Label(id="SliderOutput")
@@ -113,10 +114,13 @@ def create_gui():
 
     # Job Age Callback
     @app.callback(Output('map', 'figure'), [Input('filterButton', 'n_clicks')],
-                  [State('jobAge', 'value'), State('technology_filter', 'value'), State('seniority_filter', 'value')])
-    def display_click_data(n_clicks, job_age_value, technology_filter_value, seniority_filter_value):
+                  [State('jobAge', 'value'), State('technology_filter', 'value'), State('seniority_filter', 'value'),
+                   State('cityInput', 'value'), State('distanceInput','value')])
+    def display_click_data(n_clicks, job_age_value, technology_filter_value, seniority_filter_value, city_filter_value,
+                           distance_value):
         jobs_array = production.retrieve_jobs_from_db()
-        jobs_array = production.filter_jobs(jobs_array, technology_filter_value, job_age_value, seniority_filter_value)
+        jobs_array = production.filter_jobs(jobs_array, technology_filter_value, job_age_value, seniority_filter_value,
+                                            city_filter_value, distance_value)
         return {
             "data": [
                 {
@@ -152,18 +156,13 @@ def create_gui():
                   [Input('cityInput', 'value')])
     def show_search_results(query):
         search_results = production.search_cities(query)
-        if query is not "":
+        if query is not None:
             if len(search_results) > 0:
                 return production.search_result_datalist_creation(search_results)
             else:
                 return []
         else:
             return []
-
-    @app.callback([Output('cityInput', 'value')],
-                  [Input('citySearchResult', 'children')])
-    def select_result(selected):
-        print(selected)
 
 
     @app.callback(Output('jobList', 'children'), [Input('map', 'clickData')],

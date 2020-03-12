@@ -7,3 +7,4 @@ plotly
 pandas
 dash
 dash_dangerously_set_inner_html
+html_sanitizer

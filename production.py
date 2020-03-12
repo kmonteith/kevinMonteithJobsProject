@@ -11,7 +11,9 @@ from geopy import geocoders
 from geopy.exc import GeocoderTimedOut
 import time
 import gui
+from html_sanitizer import Sanitizer
 import dash_html_components as html
+from geopy.distance import vincenty
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -27,7 +29,7 @@ def retrieve_jobs_from_db():
 
 
 def filter_jobs(jobs_array, technology_filter_value=None, job_age_value=None,
-                seniority_filter_value=""):
+                seniority_filter_value="", city_filter_value="",distance_value=None):
     if job_age_value is None:
         job_age_value = [0, 730]
     if technology_filter_value is None:
@@ -35,6 +37,7 @@ def filter_jobs(jobs_array, technology_filter_value=None, job_age_value=None,
     jobs_array = filter_map_technology(jobs_array, technology_filter_value)
     jobs_array = filter_map_age(jobs_array, job_age_value[0], job_age_value[1])
     jobs_array = filter_map_seniority(jobs_array, seniority_filter_value)
+    jobs_array = filter_location(jobs_array, city_filter_value, distance_value)
     return jobs_array
 
 
@@ -54,7 +57,7 @@ def create_tech_tag_array(job_array):
 def search_result_datalist_creation(search_array):
     search_result_array = []
     for i in search_array:
-        search_result_array.append(html.Option(i['name']))
+        search_result_array.append(html.Option(i['name']+", "+i['subcountry']+", "+i['country']))
     return search_result_array
 
 
@@ -126,12 +129,13 @@ def get_hacker_rank_jobs():
 
 def get_stack_overflow_jobs():
     stack_overflow_jobs = []
+    sanitizer = Sanitizer()
     d = feedparser.parse("https://stackoverflow.com/jobs/feed")
     for item in d.get('entries'):
         temp_entry = {'title': item.get('title'), 'id': item.get('id'), 'url': item.get('link'),
                       'created_at': item.get('published'), 'company': item.get('authors')[0].get('name'),
                       'company_url': 'Not Available', 'location': item.get('location'),
-                      'how_to_apply': 'Refer to description', 'description': item.get('summary'),
+                      'how_to_apply': 'Refer to description', 'description': sanitizer.sanitize(item.get('summary')),
                       'company_logo': "Not Available", 'type': 'Not Available', 'tags': item.get('tags')}
         stack_overflow_jobs.append(temp_entry)
     return stack_overflow_jobs
@@ -305,26 +309,42 @@ def jobs_to_file():
         f.write(json.dumps(get_jobs()))
 
 
-def filter_location(jobs_array, city_string):
-    return None
+def filter_location(jobs_array, city_string, distance):
+    if city_string is not None:
+        gn = geocoders.Nominatim(user_agent="Jobs_Project_kmonteith_rand")
+        filtered_array = []
+        try:
+            location_geocode = gn.geocode(city_string, timeout=1000)
+            for item in jobs_array:
+                if item['longitude'] != 'NULL' and item['latitude'] != 'NULL':
+                    item_distance = vincenty((float(item['latitude']), float(item['longitude'])),
+                        (location_geocode.latitude, location_geocode.longitude)).miles
+                    if item_distance <= distance:
+                        filtered_array.append(item)
+            return filtered_array
+        except GeocoderTimedOut:
+            time.sleep(1)
+            return get_coordinates_from_location(jobs_array, city_string)
+    else:
+        return jobs_array
 
 
 def search_cities(query):
     result_counter = 0;
-    with open(os.path.join(ROOT_DIR, 'cities.json')) as file:
-        cities_json = json.loads(file.read())
-        search_results = []
-        for item in cities_json:
-            if query.lower() in item['name'].lower():
-                result_counter = result_counter + 1
-                search_results.append(item)
-            if result_counter >= 5:
-                break
-        print(search_results)
-    return search_results
+    if query is not None:
+        with open(os.path.join(ROOT_DIR, 'cities.json')) as file:
+            cities_json = json.loads(file.read())
+            search_results = []
+            for item in cities_json:
+                if query.lower() in item['name'].lower():
+                    result_counter = result_counter + 1
+                    search_results.append(item)
+                if result_counter >= 5:
+                    break
+            print(search_results)
+        return search_results
 
 
 if __name__ == '__main__':
-    # Timer(2, open_browser).start()
+    Timer(3, open_browser).start()
     gui.create_gui()
-    search_cities("new")

@@ -2,6 +2,8 @@ import os
 import time
 import pytest
 import production
+from geopy.distance import vincenty
+from geopy import geocoders
 
 
 def test_number_entries():
@@ -138,6 +140,32 @@ def test_check_correct_selected_result_title():
     assert counter == 1
 
 
+def test_in_location_range():
+    jobs_array = production.retrieve_jobs_from_db()
+    jobs_array = production.filter_location(jobs_array, "Bridgewater,Massachusetts, United States", 50)
+    test_item = jobs_array[0]
+    test_coordinates = (float(test_item['latitude']), float(test_item['longitude']))
+    distance = vincenty(test_coordinates, (41.9904, -70.9751)).miles
+    assert distance <= 50
+
+
+def test_out_of_location_range():
+    jobs_array = production.retrieve_jobs_from_db()
+    jobs_array = production.filter_location(jobs_array, "Bridgewater,Massachusetts, United States", 50)
+    test_item = jobs_array[0]
+    test_coordinates = (float(test_item['latitude']), float(test_item['longitude']))
+    distance = vincenty(test_coordinates, (40.7128, -74.0060)).miles
+    assert distance >= 50
+
+
+def test_location_distance_function():
+    gn = geocoders.Nominatim(user_agent="Jobs_Project_kmonteith_rand")
+    location_geocode = gn.geocode("Bridgewater, Massachusetts, United States", timeout=1000)
+    distance = vincenty((location_geocode.latitude,location_geocode.longitude), (40.7128, -74.0060)).miles
+    assert distance == distance
+
+
 # check to see if timestamp is accurate
 def test_timestamp_accurate():
     assert production.date_to_timestamp("Mon Feb 10 4:11:52 UTC 2020") == 1581307912
+
