@@ -73,28 +73,21 @@ def create_gui():
                                 max=730,
                                 step=1,
                                 value=[0, 1080],
-                                marks={
-                                    90: {'label': '3 Months'},
-                                    180: {'label': '6 Months'},
-                                    365: {'label': '1 Year'},
-                                    730: {'label': '2 Years'},
-                                }
+                                marks={90: {'label': '3 Months'}, 180: {'label': '6 Months'}, 365: {'label': '1 Year'},
+                                       730: {'label': '2 Years'}}
                                 ),
                 html.Label(className="filterLabels", children="Technologies"),
-                dcc.Dropdown(
-                    id="technology_filter",
-                    options=production.create_tech_tag_array(production.retrieve_jobs_from_db()),
-                    multi=True,
-                    value=" "
-                ),
+                dcc.Dropdown(id="technology_filter",
+                             options=production.create_tech_tag_array(production.retrieve_jobs_from_db()),
+                             multi=True, value=" "
+                             ),
                 html.Label(className="filterLabels", children="Seniority Level"),
-                dcc.Checklist(
-                    id="seniority_filter",
-                    options=[
-                        {'label': 'Senior Developer', 'value': 'senior'},
-                        {'label': 'Junior Developer', 'value': 'junior'}
-                    ]
-                ),
+                dcc.Checklist(id="seniority_filter",
+                              options=[
+                                  {'label': 'Senior Developer', 'value': 'senior'},
+                                  {'label': 'Junior Developer', 'value': 'junior'}
+                              ]
+                              ),
                 html.Label(className="filterLabels", children="Within Range"),
                 html.Div(className="searchDiv", children=[
                     dcc.Input(id="cityInput", list="citySearchResult", className="cityInput", placeholder="City"),
@@ -104,18 +97,14 @@ def create_gui():
                 html.Button("Filter", id="filterButton", type="button", className="filterButton"),
                 html.Label(id="SliderOutput")
             ]),
-            dcc.Graph(
-                id='map',
-                className='card',
-                figure=map_fig,
-            )])
+            dcc.Graph(id='map', className='card', figure=map_fig, )])
     ])
     app.title = "CompuJobs"
 
     # Job Age Callback
     @app.callback(Output('map', 'figure'), [Input('filterButton', 'n_clicks')],
                   [State('jobAge', 'value'), State('technology_filter', 'value'), State('seniority_filter', 'value'),
-                   State('cityInput', 'value'), State('distanceInput','value')])
+                   State('cityInput', 'value'), State('distanceInput', 'value')])
     def display_click_data(n_clicks, job_age_value, technology_filter_value, seniority_filter_value, city_filter_value,
                            distance_value):
         jobs_array = production.retrieve_jobs_from_db()
@@ -163,7 +152,6 @@ def create_gui():
                 return []
         else:
             return []
-
 
     @app.callback(Output('jobList', 'children'), [Input('map', 'clickData')],
                   [State('jobAge', 'value'), State('technology_filter', 'value'), State('seniority_filter', 'value')])

@@ -29,7 +29,7 @@ def retrieve_jobs_from_db():
 
 
 def filter_jobs(jobs_array, technology_filter_value=None, job_age_value=None,
-                seniority_filter_value="", city_filter_value="",distance_value=None):
+                seniority_filter_value="", city_filter_value="", distance_value=None):
     if job_age_value is None:
         job_age_value = [0, 730]
     if technology_filter_value is None:
@@ -57,7 +57,7 @@ def create_tech_tag_array(job_array):
 def search_result_datalist_creation(search_array):
     search_result_array = []
     for i in search_array:
-        search_result_array.append(html.Option(i['name']+", "+i['subcountry']+", "+i['country']))
+        search_result_array.append(html.Option(i['name'] + ", " + i['subcountry'] + ", " + i['country']))
     return search_result_array
 
 
@@ -318,7 +318,7 @@ def filter_location(jobs_array, city_string, distance):
             for item in jobs_array:
                 if item['longitude'] != 'NULL' and item['latitude'] != 'NULL':
                     item_distance = vincenty((float(item['latitude']), float(item['longitude'])),
-                        (location_geocode.latitude, location_geocode.longitude)).miles
+                                             (location_geocode.latitude, location_geocode.longitude)).miles
                     if item_distance <= distance:
                         filtered_array.append(item)
             return filtered_array
@@ -330,7 +330,7 @@ def filter_location(jobs_array, city_string, distance):
 
 
 def search_cities(query):
-    result_counter = 0;
+    result_counter = 0
     if query is not None:
         with open(os.path.join(ROOT_DIR, 'cities.json')) as file:
             cities_json = json.loads(file.read())
